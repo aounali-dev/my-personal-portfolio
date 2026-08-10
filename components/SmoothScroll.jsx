@@ -5,31 +5,24 @@ import Lenis from 'lenis';
 
 export default function SmoothScroll({ children }) {
   useEffect(() => {
-    // Check if the device is mobile/touch to optimize performance
-    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+    const isMobile = window.innerWidth < 768;
 
     const lenis = new Lenis({
-      duration: isMobile ? 1.0 : 1.2, // Slightly faster on mobile
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
+      duration: isMobile ? 0.6 : 1.0, // Super snappy duration
+      easing: (t) => 1 - Math.pow(1 - t, 4), // Quicker exponential ease-out
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: isMobile ? 1.5 : 2, // Reduced touch resistance for instant response
-      infinite: false,
+      touchMultiplier: isMobile ? 1.0 : 1.5,
     });
 
-    let animationFrameId;
-
+    let rafId;
     function raf(time) {
       lenis.raf(time);
-      animationFrameId = requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-
-    animationFrameId = requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);
