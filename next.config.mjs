@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
+/** @type {import('next').Next.jsConfig} */
 const nextConfig = {
-  /* config options here */
+  devIndicators: false,
 };
 
 export default nextConfig;
