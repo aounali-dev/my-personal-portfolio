@@ -70,3 +70,27 @@ motion.section {
 html {
   scroll-behavior: smooth;
 }
+
+
+/* GPU Acceleration for smooth buttery animations */
+*,
+*::before,
+*::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent layout shifts and ensure smooth hardware acceleration */
+.motion-safe {
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+
+  /* Mobile devices par heavy shadows aur excessive blurs ko halka karna taake speed fast rahay */
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}

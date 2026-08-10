@@ -1,31 +1,79 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from 'next-themes';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Sun, Moon, Menu, X, ArrowUpRight } from 'lucide-react';
-
 
 const NAV_LINKS = ['Home', 'About', 'Skills', 'Services', 'Projects', 'Journey', 'FAQ', 'Contact'];
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const clickLockRef = useRef(false);
+  const clickLockTimeout = useRef(null);
 
   useEffect(() => setMounted(true), []);
 
+  // Navbar compacts + gains contrast once the page has scrolled past the hero fold
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Scroll-spy: active tab follows whichever section is actually in view,
+  // but a manual click "locks" the tab briefly so the indicator doesn't
+  // fight the smooth-scroll animation mid-flight.
+  useEffect(() => {
+    const sections = NAV_LINKS.map((link) => document.getElementById(link.toLowerCase())).filter(Boolean);
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (clickLockRef.current) return;
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          const label = NAV_LINKS.find((link) => link.toLowerCase() === visible.target.id);
+          if (label) setActiveTab(label);
+        }
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  const handleNavClick = useCallback((link) => {
+    setActiveTab(link);
+    clickLockRef.current = true;
+    clearTimeout(clickLockTimeout.current);
+    clickLockTimeout.current = setTimeout(() => {
+      clickLockRef.current = false;
+    }, 900);
+  }, []);
+
   const isDark = mounted ? theme === 'dark' : true;
+  const springTransition = { type: 'spring', stiffness: 380, damping: 30 };
 
   return (
     <>
-      {/* Breathing ambient glow */}
-      <motion.div
-        animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.15, 1] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none fixed left-1/2 top-0 z-40 h-20 w-96 -translate-x-1/2 rounded-full bg-[var(--accent-blue-soft)] blur-3xl"
-      />
+      {/* Breathing ambient glow — stilled for reduced-motion users */}
+      {!prefersReducedMotion && (
+        <motion.div
+          animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.15, 1] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="pointer-events-none fixed left-1/2 top-0 z-40 h-20 w-96 -translate-x-1/2 rounded-full bg-[var(--accent-blue-soft)] blur-3xl"
+        />
+      )}
 
       {/* Floating header */}
       <motion.header
@@ -34,14 +82,31 @@ export default function Navbar() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="fixed left-0 right-0 top-5 z-50 flex justify-center px-4"
       >
-        <nav className="relative flex h-16 w-full max-w-5xl items-center justify-between overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg-soft)] px-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-6">
+        <motion.nav
+          animate={{
+            height: isScrolled ? 58 : 64,
+            boxShadow: isScrolled
+              ? '0 14px 34px rgba(0,0,0,0.42)'
+              : '0 10px 30px rgba(0,0,0,0.35)',
+          }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className={`relative flex w-full max-w-5xl items-center justify-between overflow-hidden rounded-2xl border px-5 backdrop-blur-xl transition-colors duration-300 sm:px-6 ${
+            isScrolled
+              ? 'border-[var(--border-color)] bg-[var(--card-bg)]'
+              : 'border-[var(--border-color)] bg-[var(--card-bg-soft)]'
+          }`}
+        >
           {/* inner top highlight */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-blue)]/40 to-transparent" />
 
           {/* Logo */}
-          <a href="#home" className="group z-10 flex items-center gap-2.5">
+          <a
+            href="#home"
+            onClick={() => handleNavClick('Home')}
+            className="group z-10 flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]"
+          >
             <motion.span
-              whileHover={{ rotate: 8, scale: 1.06 }}
+              whileHover={prefersReducedMotion ? undefined : { rotate: 8, scale: 1.06 }}
               transition={{ type: 'spring', stiffness: 300, damping: 14 }}
               className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-indigo-600 text-sm font-black text-white shadow-[0_0_18px_-3px_var(--accent-blue)]"
             >
@@ -66,10 +131,10 @@ export default function Navbar() {
                 <motion.a
                   key={link}
                   href={`#${link.toLowerCase()}`}
-                  onClick={() => setActiveTab(link)}
-                  whileHover={{ y: -2 }}
+                  onClick={() => handleNavClick(link)}
+                  whileHover={prefersReducedMotion ? undefined : { y: -2 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                  className={`relative px-3.5 py-2 text-xs font-semibold tracking-wide transition-colors duration-200 ${
+                  className={`relative rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 ${
                     isActive
                       ? 'text-[var(--text-primary)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -79,7 +144,7 @@ export default function Navbar() {
                     <motion.div
                       layoutId="activeTabIndicator"
                       className="absolute inset-0 rounded-xl border border-[var(--accent-blue)]/40 bg-[var(--accent-blue-soft)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      transition={springTransition}
                     />
                   )}
                   <span className="relative z-10">{link}</span>
@@ -87,7 +152,7 @@ export default function Navbar() {
                     <motion.span
                       layoutId="activeGlowDot"
                       className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-[var(--accent-blue)] shadow-[0_0_10px_var(--accent-blue)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      transition={springTransition}
                     />
                   )}
                 </motion.a>
@@ -101,7 +166,7 @@ export default function Navbar() {
               <button
                 onClick={() => setTheme(isDark ? 'light' : 'dark')}
                 aria-label="Toggle theme"
-                className="relative flex h-7 w-14 items-center justify-between rounded-full border border-[var(--border-color)] bg-[var(--bg-primary)] p-1"
+                className="relative flex h-7 w-14 items-center justify-between rounded-full border border-[var(--border-color)] bg-[var(--bg-primary)] p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
               >
                 <Sun
                   className={`h-3.5 w-3.5 transition-opacity ${
@@ -123,10 +188,11 @@ export default function Navbar() {
 
             {/* CTA with shimmer sweep */}
             <motion.a
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
               href="#contact"
-              className="group/cta relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-blue-700 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:from-blue-500 hover:to-blue-600"
+              onClick={() => handleNavClick('Contact')}
+              className="group/cta relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-blue-700 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:from-blue-500 hover:to-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full" />
               <span className="relative z-10">LET&apos;S TALK</span>
@@ -140,7 +206,7 @@ export default function Navbar() {
               <button
                 onClick={() => setTheme(isDark ? 'light' : 'dark')}
                 aria-label="Toggle theme"
-                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-secondary)]"
+                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
               >
                 {isDark ? (
                   <Moon className="h-4 w-4 text-[var(--accent-blue)]" />
@@ -152,12 +218,13 @@ export default function Navbar() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
-              className="p-2 text-[var(--text-primary)] transition-colors hover:text-[var(--accent-blue)]"
+              aria-expanded={isMobileMenuOpen}
+              className="rounded-lg p-2 text-[var(--text-primary)] transition-colors hover:text-[var(--accent-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
-        </nav>
+        </motion.nav>
       </motion.header>
 
       {/* Mobile slide-in drawer */}
@@ -189,10 +256,10 @@ export default function Navbar() {
                     whileTap={{ scale: 0.96 }}
                     href={`#${link.toLowerCase()}`}
                     onClick={() => {
-                      setActiveTab(link);
+                      handleNavClick(link);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 ${
                       activeTab === link
                         ? 'border border-[var(--accent-blue)]/30 bg-[var(--accent-blue-soft)] text-[var(--accent-blue)]'
                         : 'text-[var(--text-secondary)] hover:bg-[var(--border-color)]/40 hover:text-[var(--text-primary)]'
@@ -208,7 +275,10 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
                 href="#contact"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                  handleNavClick('Contact');
+                  setIsMobileMenuOpen(false);
+                }}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent-blue)] py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:bg-blue-500"
               >
                 LET&apos;S TALK <ArrowUpRight className="h-4 w-4" />

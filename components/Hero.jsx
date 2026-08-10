@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Terminal, Code2, ShieldCheck, Sparkles, ChevronDown } from 'lucide-react';
 import { fastFadeIn } from './animations';
 
@@ -33,6 +33,7 @@ const fadeUp = {
 export default function Hero() {
   const sectionRef = useRef(null);
   const cardRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const spotX = useMotionValue('50%');
   const spotY = useMotionValue('30%');
@@ -49,12 +50,14 @@ export default function Hero() {
   const rotateY = useTransform(springTiltX, [-0.5, 0.5], [-10, 10]);
 
   const handleSectionMove = (e) => {
+    if (prefersReducedMotion || !sectionRef.current) return;
     const rect = sectionRef.current.getBoundingClientRect();
     spotX.set(`${((e.clientX - rect.left) / rect.width) * 100}%`);
     spotY.set(`${((e.clientY - rect.top) / rect.height) * 100}%`);
   };
 
   const handleCardMove = (e) => {
+    if (prefersReducedMotion || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     tiltX.set((e.clientX - rect.left) / rect.width - 0.5);
     tiltY.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -73,30 +76,33 @@ export default function Hero() {
       className="relative flex min-h-screen items-center justify-center overflow-hidden pb-20 pt-32"
     >
       {/* Cursor-follow spotlight */}
-      <motion.div className="pointer-events-none absolute inset-0" style={{ background: spotlight }} />
+      {!prefersReducedMotion && (
+        <motion.div className="pointer-events-none absolute inset-0" style={{ background: spotlight }} />
+      )}
 
       {/* Ambient blobs */}
       <motion.div
-        animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.1, 1] }}
+        animate={prefersReducedMotion ? {} : { x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
         className="pointer-events-none absolute left-1/3 top-1/4 h-[380px] w-[380px] rounded-full bg-[var(--accent-blue-soft)] blur-[110px]"
       />
       <motion.div
-        animate={{ x: [0, -30, 0], y: [0, 25, 0], scale: [1, 1.15, 1] }}
+        animate={prefersReducedMotion ? {} : { x: [0, -30, 0], y: [0, 25, 0], scale: [1, 1.15, 1] }}
         transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
         className="pointer-events-none absolute bottom-1/4 right-1/4 h-[320px] w-[320px] rounded-full bg-indigo-500/10 blur-[110px]"
       />
 
       {/* Floating particles */}
-      {PARTICLES.map((p, i) => (
-        <motion.span
-          key={i}
-          animate={{ y: [0, -14, 0], opacity: [0.2, 0.9, 0.2] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: p.delay }}
-          className="pointer-events-none absolute rounded-full bg-[var(--accent-blue)]"
-          style={{ top: p.top, left: p.left, width: p.size, height: p.size }}
-        />
-      ))}
+      {!prefersReducedMotion &&
+        PARTICLES.map((p, i) => (
+          <motion.span
+            key={i}
+            animate={{ y: [0, -14, 0], opacity: [0.2, 0.9, 0.2] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: p.delay }}
+            className="pointer-events-none absolute rounded-full bg-[var(--accent-blue)]"
+            style={{ top: p.top, left: p.left, width: p.size, height: p.size }}
+          />
+        ))}
 
       {/* faint grid */}
       <div
@@ -132,13 +138,11 @@ export default function Hero() {
             style={{ perspective: 800 }}
             className="text-4xl font-extrabold leading-[1.1] tracking-tight text-[var(--text-primary)] sm:text-6xl"
           >
-            <span className="mr-3 inline-block">
-              {LINE_1.map((w, i) => (
-                <motion.span key={i} variants={wordItem} className="mr-3 inline-block">
-                  {w}
-                </motion.span>
-              ))}
-            </span>
+            {LINE_1.map((w, i) => (
+              <motion.span key={i} variants={wordItem} className="mr-3 inline-block">
+                {w}
+              </motion.span>
+            ))}
             <br />
             <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 bg-[length:200%_auto] bg-clip-text text-transparent [animation:gradient-shift_6s_ease_infinite]">
               {LINE_2.map((w, i) => (
@@ -171,7 +175,7 @@ export default function Hero() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               href="#projects"
-              className="group/cta relative flex items-center gap-2 overflow-hidden rounded-xl bg-[var(--accent-blue)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_25px_rgba(37,99,235,0.35)] transition-shadow hover:shadow-[0_0_35px_rgba(37,99,235,0.55)]"
+              className="group/cta relative flex items-center gap-2 overflow-hidden rounded-xl bg-[var(--accent-blue)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_25px_rgba(37,99,235,0.35)] transition-shadow hover:shadow-[0_0_35px_rgba(37,99,235,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full" />
               <span className="relative z-10">Explore Work</span>
@@ -182,7 +186,7 @@ export default function Hero() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               href="#contact"
-              className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all hover:border-[var(--accent-blue)]"
+              className="rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] transition-all hover:border-[var(--accent-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
             >
               Contact Me
             </motion.a>
@@ -199,7 +203,10 @@ export default function Hero() {
               <Sparkles className="h-3.5 w-3.5 text-[var(--accent-blue)]" /> Core Tech Stack
             </span>
             <div className="relative overflow-hidden">
-              <div className="flex w-max gap-2 [animation:marquee_18s_linear_infinite]">
+              <div
+                className="flex w-max gap-2 [animation:marquee_18s_linear_infinite]"
+                style={prefersReducedMotion ? { animationPlayState: 'paused' } : undefined}
+              >
                 {[...TECH_STACK, ...TECH_STACK].map((tech, i) => (
                   <span
                     key={`${tech}-${i}`}
@@ -224,14 +231,17 @@ export default function Hero() {
           style={{ perspective: 1000 }}
         >
           <div className="relative rounded-2xl p-[1.5px]">
-            <div className="absolute inset-0 rounded-2xl opacity-80 [animation:spin-border_5s_linear_infinite] [background:conic-gradient(from_0deg,var(--accent-blue),transparent_30%,transparent_70%,var(--accent-blue))]" />
+            <div
+              className="absolute inset-0 rounded-2xl opacity-80 [animation:spin-border_5s_linear_infinite] [background:conic-gradient(from_0deg,var(--accent-blue),transparent_30%,transparent_70%,var(--accent-blue))]"
+              style={prefersReducedMotion ? { animationPlayState: 'paused' } : undefined}
+            />
 
             <motion.div
               ref={cardRef}
               onMouseMove={handleCardMove}
               onMouseLeave={handleCardLeave}
               style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-              animate={{ y: [0, -8, 0] }}
+              animate={prefersReducedMotion ? {} : { y: [0, -8, 0] }}
               transition={{ y: { duration: 5, repeat: Infinity, ease: 'easeInOut' } }}
               className="relative overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-2xl backdrop-blur-md"
             >
@@ -270,11 +280,13 @@ export default function Hero() {
                   </motion.div>
                   <motion.div variants={fadeUp} className="flex items-center">
                     &#125;;
-                    <motion.span
-                      animate={{ opacity: [1, 0, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                      className="ml-1 inline-block h-3 w-1.5 bg-[var(--accent-blue)]"
-                    />
+                    {!prefersReducedMotion && (
+                      <motion.span
+                        animate={{ opacity: [1, 0, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="ml-1 inline-block h-3 w-1.5 bg-[var(--accent-blue)]"
+                      />
+                    )}
                   </motion.div>
                 </code>
               </motion.pre>
@@ -306,7 +318,7 @@ export default function Hero() {
           </div>
 
           <motion.div
-            animate={{ y: [0, -12, 0], rotate: [0, 3, 0] }}
+            animate={prefersReducedMotion ? {} : { y: [0, -12, 0], rotate: [0, 3, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             className="absolute -right-4 -top-4 hidden items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)] px-3 py-2 shadow-xl sm:flex"
           >
@@ -316,13 +328,15 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
+      <motion.a
+        href="#about"
+        animate={prefersReducedMotion ? {} : { y: [0, 8, 0] }}
         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[var(--text-secondary)]"
+        aria-label="Scroll to About section"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full p-1 text-[var(--text-secondary)] transition-colors hover:text-[var(--accent-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
       >
         <ChevronDown className="h-5 w-5" />
-      </motion.div>
+      </motion.a>
 
       <style jsx>{`
         @keyframes marquee {

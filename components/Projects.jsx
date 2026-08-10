@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ExternalLink, Sparkles, Terminal, ArrowUpRight } from 'lucide-react';
-import { fastFadeIn } from './animations';
+import Image from 'next/image';
 
 function GithubIcon(props) {
   return (
@@ -96,86 +96,40 @@ const PROJECTS_DATA = [
 export default function Projects() {
   return (
     <section id="projects" className="relative overflow-hidden py-28">
-      {/* Background glows */}
       <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-full max-w-7xl -translate-x-1/2 bg-gradient-to-b from-[var(--accent-blue-soft)] via-transparent to-transparent blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[500px] w-[500px] rounded-full bg-purple-600/10 blur-[150px]" />
-
-      {/* Faint grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"
-        style={{
-          backgroundImage:
-            'linear-gradient(var(--text-primary) 1px, transparent 1px), linear-gradient(90deg, var(--text-primary) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
-
+      
       <div className="relative z-10 mx-auto max-w-7xl px-6">
-        {/* Section header */}
         <div className="mb-20 flex flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-blue)]/30 bg-[var(--accent-blue-soft)] px-4 py-1.5 font-mono text-xs font-semibold text-[var(--accent-blue)] backdrop-blur-xl"
-          >
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--accent-blue)]/30 bg-[var(--accent-blue-soft)] px-4 py-1.5 font-mono text-xs font-semibold text-[var(--accent-blue)] backdrop-blur-xl">
             <Sparkles className="h-3.5 w-3.5" />
             <span>PORTFOLIO &amp; ARCHITECTURE</span>
-          </motion.div>
+          </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl font-extrabold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:text-6xl"
-          >
+          <h2 className="text-4xl font-extrabold leading-[1.15] tracking-tight text-[var(--text-primary)] sm:text-6xl">
             Engineered with Precision &amp; <br />
-            <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 bg-[length:200%_auto] bg-clip-text text-transparent [animation:gradient-shift_6s_ease_infinite]">
+            <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 bg-[length:200%_auto] bg-clip-text text-transparent">
               Scalable Performance
             </span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-[var(--text-secondary)] sm:text-sm"
-          >
-            A curated showcase of modern web applications, custom UI systems, and full-stack solutions built for
-            high scalability.
-          </motion.p>
+          <p className="mt-4 max-w-xl font-mono text-xs leading-relaxed text-[var(--text-secondary)] sm:text-sm">
+            A curated showcase of modern web applications, custom UI systems, and full-stack solutions built for high scalability.
+          </p>
         </div>
 
-        {/* Bento grid */}
         <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-12">
           {PROJECTS_DATA.map((project, idx) => (
-            <motion.div
+            <div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className={`${project.span} group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)] sm:p-8`}
-              style={{ '--project-accent': project.accent }}
+              className={`${project.span} group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 backdrop-blur-2xl transition-all duration-300 sm:p-8`}
             >
-              <div
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
-                style={{ background: `radial-gradient(500px circle at 30% 0%, ${project.accent}14, transparent 70%)` }}
-              />
-              <div
-                className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 ring-1 transition-opacity duration-500 group-hover:opacity-100"
-                style={{ '--tw-ring-color': `${project.accent}66` }}
-              />
-
               <div className="relative">
                 <div className="mb-6 flex items-center justify-between">
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[11px] font-bold"
                     style={{ color: project.accent, borderColor: `${project.accent}33`, backgroundColor: `${project.accent}14` }}
                   >
-                    <Terminal className="h-3 w-3" />
+                    <Terminal className="h-3.5 w-3.5" />
                     {project.badge}
                   </span>
                   <span className="font-mono text-xs font-bold tracking-widest text-[var(--text-secondary)]">
@@ -183,40 +137,19 @@ export default function Projects() {
                   </span>
                 </div>
 
-                <div className="relative mb-6 h-56 w-full overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] transition-colors duration-500 sm:h-64">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src =
-                        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)]/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-40" />
-
-                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-primary)]/50 opacity-0 backdrop-blur-[3px] transition-opacity duration-300 group-hover:opacity-100">
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex scale-95 items-center gap-2 rounded-xl bg-white px-5 py-2.5 font-mono text-xs font-bold text-slate-950 shadow-2xl transition-all duration-300 hover:bg-[var(--accent-blue)] hover:text-white group-hover:scale-100"
-                      >
-                        <span>LAUNCH PROJECT</span>
-                        <ArrowUpRight className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                <h3
-                  className="mb-2.5 text-2xl font-bold tracking-tight text-[var(--text-primary)] transition-colors duration-300"
-                  style={{ color: 'var(--text-primary)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = project.accent)}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
-                >
+             <Image
+  src={project.image}
+  alt={project.title}
+  fill
+  sizes="(max-width: 768px) 100vw, 50vw"
+  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src =
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop';
+  }}
+/>
+                <h3 className="mb-2.5 text-2xl font-bold tracking-tight text-[var(--text-primary)]">
                   {project.title}
                 </h3>
                 <p className="mb-6 text-xs leading-relaxed text-[var(--text-secondary)] sm:text-sm">
@@ -224,12 +157,12 @@ export default function Projects() {
                 </p>
               </div>
 
-              <div className="relative">
+              <div>
                 <div className="mb-6 flex flex-wrap gap-2 border-t border-[var(--border-color)] pt-4">
                   {project.techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-2.5 py-1 font-mono text-[11px] font-medium text-[var(--text-secondary)] backdrop-blur-md transition-colors group-hover:border-[var(--accent-blue)]/30"
+                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-2.5 py-1 font-mono text-[11px] font-medium text-[var(--text-secondary)]"
                     >
                       {tech}
                     </span>
@@ -242,7 +175,7 @@ export default function Projects() {
                       href={project.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-blue)] px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[var(--accent-blue)]/20 transition-all hover:scale-[1.02] hover:opacity-90 active:scale-95"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-blue)] px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[var(--accent-blue)]/20 transition-all hover:opacity-90"
                     >
                       <span>Live Demo</span>
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -253,24 +186,17 @@ export default function Projects() {
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2.5 text-xs font-semibold text-[var(--text-secondary)] transition-all hover:scale-[1.02] hover:text-[var(--text-primary)] active:scale-95"
+                    className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2.5 text-xs font-semibold text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)]"
                   >
                     <GithubIcon className="h-3.5 w-3.5" />
                     <span>Source Code</span>
                   </a>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-      `}</style>
     </section>
   );
 }

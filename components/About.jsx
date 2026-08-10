@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { User, Code2, Cpu, ShieldCheck, Award, Rocket, Terminal } from 'lucide-react';
 import { fastFadeIn } from './animations';
 
 const STATS = [
-{ label: 'Experience', display: '1.6+ Years', icon: Award },
+  { label: 'Experience', display: '1.6+ Years', icon: Award },
   { label: 'Core Expertise', display: 'Full-Stack', icon: Code2 },
   { label: 'Code Quality', display: 'Optimized', icon: ShieldCheck },
 ];
@@ -14,10 +14,11 @@ const STATS = [
 function Counter({ to, suffix }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-40px' });
-  const [count, setCount] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const [count, setCount] = useState(prefersReducedMotion ? to : 0);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || prefersReducedMotion) return;
     const duration = 1100;
     const startTime = performance.now();
     let frame;
@@ -28,7 +29,7 @@ function Counter({ to, suffix }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [isInView, to]);
+  }, [isInView, to, prefersReducedMotion]);
 
   return (
     <span ref={ref}>
@@ -44,11 +45,13 @@ const fadeIn = (delay = 0) => ({
 });
 
 export default function About() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section id="about" className="relative overflow-hidden py-24">
       {/* Ambient glow — tuned per-theme via --accent-blue-soft in globals.css */}
       <motion.div
-        animate={{ scale: [1, 1.12, 1] }}
+        animate={prefersReducedMotion ? {} : { scale: [1, 1.12, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         className="pointer-events-none absolute right-10 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-[var(--accent-blue-soft)] blur-[140px]"
       />
@@ -72,7 +75,7 @@ export default function About() {
         >
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--card-bg)] px-3.5 py-1.5 text-xs font-semibold text-[var(--accent-blue)]">
             <motion.span
-              animate={{ rotate: [0, 15, -15, 0] }}
+              animate={prefersReducedMotion ? {} : { rotate: [0, 15, -15, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               className="flex"
             >
@@ -156,12 +159,12 @@ export default function About() {
             {/* Orbit monogram */}
             <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
               <motion.span
-                animate={{ rotate: 360 }}
+                animate={prefersReducedMotion ? {} : { rotate: 360 }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
                 className="absolute inset-0 rounded-full border border-dashed border-[var(--accent-blue)]/40"
               />
               <motion.span
-                animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
+                animate={prefersReducedMotion ? {} : { scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute inset-2 rounded-full bg-[var(--accent-blue-soft)] blur-md"
               />
@@ -169,7 +172,7 @@ export default function About() {
                 AA
               </div>
               <motion.span
-                animate={{ rotate: 360 }}
+                animate={prefersReducedMotion ? {} : { rotate: 360 }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
                 className="absolute inset-0"
                 style={{ transformOrigin: '50% 50%' }}
