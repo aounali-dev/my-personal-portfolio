@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
-:root,
-:root.dark {
-  --bg-primary: #090A0F;
-  --card-bg: #12151E;
-  --card-bg-soft: #12151ECC;
-  --border-color: #222736;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --accent-blue: #2563EB;
-  --accent-blue-soft: #2563EB26;
+:root {
+  --bg-primary: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --border-color: #e2e8f0;
+  --accent-blue: #2563eb;
+  --accent-blue-soft: rgba(37, 99, 235, 0.08);
+  --glow-color: rgba(37, 99, 235, 0.3);
 }
 
-:root.light {
-  --bg-primary: #F4F6FA;
-  --card-bg: #FFFFFF;
-  --card-bg-soft: #FFFFFFCC;
-  --border-color: #E2E8F0;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --accent-blue: #2563EB;
-  --accent-blue-soft: #2563EB14;
+.dark,
+[data-theme='dark'] {
+  --bg-primary: #030712;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --card-bg: rgba(15, 23, 42, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-blue: #3b82f6;
+  --accent-blue-soft: rgba(59, 130, 246, 0.15);
+  --glow-color: rgba(59, 130, 246, 0.2);
 }
 
 body {
@@ -31,41 +31,84 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Premium Border Spin Animation */
+@keyframes border-spin {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.animate-border-spin {
+  animation: border-spin 7s linear infinite;
+}
+
+/* Subtle Fade In Up */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+/* Marquee for Tech Stack */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-blue);
 }
 
-
-*,
-*::before,
-*::after {
-  animation: none !important;
-  transition: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-body {
-  background-color: #030712 !important;
-  color: #f8fafc !important;
-  overflow-x: hidden;
-}
-
 img {
   content-visibility: auto;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

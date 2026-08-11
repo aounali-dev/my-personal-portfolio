@@ -19,7 +19,6 @@ export default function Navbar() {
 
   useEffect(() => setMounted(true), []);
 
-  // Navbar compacts + gains contrast once the page has scrolled past the hero fold
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
     onScroll();
@@ -27,9 +26,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Scroll-spy: active tab follows whichever section is actually in view,
-  // but a manual click "locks" the tab briefly so the indicator doesn't
-  // fight the smooth-scroll animation mid-flight.
   useEffect(() => {
     const sections = NAV_LINKS.map((link) => document.getElementById(link.toLowerCase())).filter(Boolean);
     if (sections.length === 0) return;
@@ -66,53 +62,33 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Breathing ambient glow — stilled for reduced-motion users */}
+      {/* Breathing ambient glow — lightweight */}
       {!prefersReducedMotion && (
-        <motion.div
-          animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.15, 1] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-          className="pointer-events-none fixed left-1/2 top-0 z-40 h-20 w-96 -translate-x-1/2 rounded-full bg-[var(--accent-blue-soft)] blur-3xl"
-        />
+        <div className="pointer-events-none fixed left-1/2 top-0 z-40 h-20 w-96 -translate-x-1/2 rounded-full bg-[var(--accent-blue-soft)] blur-3xl opacity-70" />
       )}
 
       {/* Floating header */}
-      <motion.header
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed left-0 right-0 top-5 z-50 flex justify-center px-4"
-      >
-        <motion.nav
-          animate={{
-            height: isScrolled ? 58 : 64,
-            boxShadow: isScrolled
-              ? '0 14px 34px rgba(0,0,0,0.42)'
-              : '0 10px 30px rgba(0,0,0,0.35)',
-          }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative flex w-full max-w-5xl items-center justify-between overflow-hidden rounded-2xl border px-5 backdrop-blur-xl transition-colors duration-300 sm:px-6 ${
+      <header className="fixed left-0 right-0 top-4 z-50 flex justify-center px-4">
+        <nav
+          className={`relative flex w-full max-w-5xl items-center justify-between overflow-hidden rounded-2xl border px-5 py-3 backdrop-blur-md transition-all duration-300 sm:px-6 ${
             isScrolled
-              ? 'border-[var(--border-color)] bg-[var(--card-bg)]'
-              : 'border-[var(--border-color)] bg-[var(--card-bg-soft)]'
+              ? 'border-[var(--border-color)] bg-[var(--card-bg)] shadow-xl'
+              : 'border-[var(--border-color)] bg-[var(--card-bg)]/80 shadow-md'
           }`}
         >
-          {/* inner top highlight */}
+          {/* Inner top highlight */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-blue)]/40 to-transparent" />
 
           {/* Logo */}
           <a
             href="#home"
             onClick={() => handleNavClick('Home')}
-            className="group z-10 flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card-bg)]"
+            className="group z-10 flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
           >
-            <motion.span
-              whileHover={prefersReducedMotion ? undefined : { rotate: 8, scale: 1.06 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 14 }}
-              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-indigo-600 text-sm font-black text-white shadow-[0_0_18px_-3px_var(--accent-blue)]"
-            >
+            <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-blue)] to-indigo-600 text-sm font-black text-white shadow-md">
               A
               <span className="absolute inset-0 rounded-xl ring-1 ring-white/15" />
-            </motion.span>
+            </span>
             <span className="flex flex-col leading-none">
               <span className="text-sm font-extrabold tracking-tight text-[var(--text-primary)] transition-colors group-hover:text-[var(--accent-blue)]">
                 AOUN ALI
@@ -128,13 +104,11 @@ export default function Navbar() {
             {NAV_LINKS.map((link) => {
               const isActive = activeTab === link;
               return (
-                <motion.a
+                <a
                   key={link}
                   href={`#${link.toLowerCase()}`}
                   onClick={() => handleNavClick(link)}
-                  whileHover={prefersReducedMotion ? undefined : { y: -2 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                  className={`relative rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 ${
+                  className={`relative rounded-xl px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)] ${
                     isActive
                       ? 'text-[var(--text-primary)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -148,14 +122,7 @@ export default function Navbar() {
                     />
                   )}
                   <span className="relative z-10">{link}</span>
-                  {isActive && (
-                    <motion.span
-                      layoutId="activeGlowDot"
-                      className="absolute -bottom-1 left-1/2 h-[2px] w-4 -translate-x-1/2 rounded-full bg-[var(--accent-blue)] shadow-[0_0_10px_var(--accent-blue)]"
-                      transition={springTransition}
-                    />
-                  )}
-                </motion.a>
+                </a>
               );
             })}
           </div>
@@ -166,38 +133,26 @@ export default function Navbar() {
               <button
                 onClick={() => setTheme(isDark ? 'light' : 'dark')}
                 aria-label="Toggle theme"
-                className="relative flex h-7 w-14 items-center justify-between rounded-full border border-[var(--border-color)] bg-[var(--bg-primary)] p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
+                className="relative flex h-7 w-14 items-center justify-between rounded-full border border-[var(--border-color)] bg-[var(--bg-primary)] p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]"
               >
-                <Sun
-                  className={`h-3.5 w-3.5 transition-opacity ${
-                    !isDark ? 'text-amber-400 opacity-100' : 'text-slate-600 opacity-40'
-                  }`}
-                />
-                <Moon
-                  className={`h-3.5 w-3.5 transition-opacity ${
-                    isDark ? 'text-[var(--accent-blue)] opacity-100' : 'text-slate-600 opacity-40'
-                  }`}
-                />
+                <Sun className={`h-3.5 w-3.5 transition-opacity ${!isDark ? 'text-amber-400 opacity-100' : 'text-slate-400 opacity-40'}`} />
+                <Moon className={`h-3.5 w-3.5 transition-opacity ${isDark ? 'text-[var(--accent-blue)] opacity-100' : 'text-slate-400 opacity-40'}`} />
                 <motion.div
-                  className="absolute bottom-1 top-1 h-5 w-5 rounded-full bg-[var(--accent-blue)] shadow-[0_0_10px_var(--accent-blue)]"
-                  animate={{ x: isDark ? 26 : 0, rotate: isDark ? 0 : 180 }}
+                  className="absolute bottom-1 top-1 h-5 w-5 rounded-full bg-[var(--accent-blue)] shadow-sm"
+                  animate={{ x: isDark ? 26 : 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 />
               </button>
             )}
 
-            {/* CTA with shimmer sweep */}
-            <motion.a
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+            <a
               href="#contact"
               onClick={() => handleNavClick('Contact')}
-              className="group/cta relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-blue-700 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:from-blue-500 hover:to-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              className="group/cta relative flex items-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-r from-[var(--accent-blue)] to-blue-700 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
             >
-              <span className="pointer-events-none absolute inset-0 -translate-x-full skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover/cta:translate-x-full" />
               <span className="relative z-10">LET&apos;S TALK</span>
-              <ArrowUpRight className="relative z-10 h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
-            </motion.a>
+              <ArrowUpRight className="relative z-10 h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
+            </a>
           </div>
 
           {/* Mobile controls */}
@@ -206,26 +161,22 @@ export default function Navbar() {
               <button
                 onClick={() => setTheme(isDark ? 'light' : 'dark')}
                 aria-label="Toggle theme"
-                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
+                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-2 text-[var(--text-secondary)]"
               >
-                {isDark ? (
-                  <Moon className="h-4 w-4 text-[var(--accent-blue)]" />
-                ) : (
-                  <Sun className="h-4 w-4 text-amber-400" />
-                )}
+                {isDark ? <Moon className="h-4 w-4 text-[var(--accent-blue)]" /> : <Sun className="h-4 w-4 text-amber-400" />}
               </button>
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
               aria-expanded={isMobileMenuOpen}
-              className="rounded-lg p-2 text-[var(--text-primary)] transition-colors hover:text-[var(--accent-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60"
+              className="rounded-lg p-2 text-[var(--text-primary)] transition-colors hover:text-[var(--accent-blue)]"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
-        </motion.nav>
-      </motion.header>
+        </nav>
+      </header>
 
       {/* Mobile slide-in drawer */}
       <AnimatePresence>
@@ -236,7 +187,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
 
             <motion.aside
@@ -247,42 +198,35 @@ export default function Navbar() {
               className="absolute right-0 top-0 flex h-full w-72 flex-col justify-between border-l border-[var(--border-color)] bg-[var(--card-bg)] p-6 pt-24 shadow-2xl"
             >
               <div className="flex flex-col gap-2">
-                {NAV_LINKS.map((link, idx) => (
-                  <motion.a
+                {NAV_LINKS.map((link) => (
+                  <a
                     key={link}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.04, type: 'spring', stiffness: 300, damping: 24 }}
-                    whileTap={{ scale: 0.96 }}
                     href={`#${link.toLowerCase()}`}
                     onClick={() => {
                       handleNavClick(link);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-blue)]/60 ${
+                    className={`rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
                       activeTab === link
                         ? 'border border-[var(--accent-blue)]/30 bg-[var(--accent-blue-soft)] text-[var(--accent-blue)]'
                         : 'text-[var(--text-secondary)] hover:bg-[var(--border-color)]/40 hover:text-[var(--text-primary)]'
                     }`}
                   >
                     {link}
-                  </motion.a>
+                  </a>
                 ))}
               </div>
 
-              <motion.a
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
+              <a
                 href="#contact"
                 onClick={() => {
                   handleNavClick('Contact');
                   setIsMobileMenuOpen(false);
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent-blue)] py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:bg-blue-500"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent-blue)] py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg"
               >
                 LET&apos;S TALK <ArrowUpRight className="h-4 w-4" />
-              </motion.a>
+              </a>
             </motion.aside>
           </div>
         )}
